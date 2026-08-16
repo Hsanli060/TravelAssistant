@@ -15,6 +15,8 @@ export interface Attraction {
   rating?: number | string
   image_url?: string
   ticket_price?: number
+  poi_id?: string
+  open_time?: string
 }
 
 export interface Meal {
@@ -44,6 +46,7 @@ export interface RouteLeg {
   distance_m?: number
   duration_min?: number
   description?: string
+  cost?: number
 }
 
 export interface DayPlan {

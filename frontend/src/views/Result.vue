@@ -238,7 +238,8 @@
                   <div class="step-route-leg">
                     <div class="leg-dash-line"></div>
                     <div class="leg-pill-badge">
-                      <span class="leg-desc-text">{{ leg.description }}</span>
+                      <span class="leg-icon">{{ getLegIcon(leg.route_type || '') }}</span>
+                      <span class="leg-desc-text">{{ getLegDesc(leg) }}</span>
                     </div>
                   </div>
 
@@ -294,6 +295,10 @@
                       <span class="addr-icon">📍</span>
                       <span class="addr-text">{{ attr.address }}</span>
                     </div>
+                    <div class="attr-address" v-if="attr.open_time" :title="attr.open_time">
+                      <span class="addr-icon">🕒</span>
+                      <span class="addr-text">{{ attr.open_time }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -306,7 +311,7 @@
               </div>
               <div class="meals-grid">
                 <div
-                  v-for="(meal, mealIdx) in day.meals"
+                  v-for="(meal, mealIdx) in sortedMeals(day.meals)"
                   :key="mealIdx"
                   class="meal-card"
                 >
@@ -335,7 +340,7 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { message } from 'ant-design-vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import html2canvas from 'html2canvas'
-import type { TripPlan, Attraction } from '../types'
+import type { TripPlan, Attraction, RouteLeg, Meal } from '../types'
 
 const props = defineProps<{
   planData?: TripPlan | null
@@ -392,6 +397,36 @@ const getMealTypeName = (type: string) => {
     case 'snack': return '🍢 特色小吃'
     default: return '🍴 餐饮'
   }
+}
+
+// 动线段交通工具图标（按 route_type 中文关键字映射）
+const getLegIcon = (routeType: string) => {
+  if (!routeType) return '🚌'
+  // 后端 calculate_leg 产出英文枚举：walking / transit / driving / mixed
+  if (routeType === 'walking' || routeType.includes('步行')) return '🚶'
+  if (routeType === 'transit' || routeType.includes('公交') || routeType.includes('地铁') || routeType.includes('公共交通')) return '🚇'
+  if (routeType === 'driving' || routeType.includes('打车') || routeType.includes('专线') || routeType.includes('驾')) return '🚖'
+  return '🚌'
+}
+
+// 动线段描述（cost 存在且 >0 时追加估算费用）
+const getLegDesc = (leg: RouteLeg) => {
+  let text = leg.description || ''
+  if (leg.cost && leg.cost > 0) {
+    text += ` · 约¥${leg.cost}`
+  }
+  return text
+}
+
+// 餐饮排序：早餐 → 午餐 → 晚餐 → 小吃，其余类型排最后
+const mealTypeOrder: Record<string, number> = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 }
+const sortedMeals = (meals: Meal[] | undefined): Meal[] => {
+  if (!meals) return []
+  return [...meals].sort((a, b) => {
+    const ia = mealTypeOrder[a.type] ?? 99
+    const ib = mealTypeOrder[b.type] ?? 99
+    return ia - ib
+  })
 }
 
 // 初始化高德地图
@@ -708,7 +743,7 @@ const copyPlanToClipboard = async () => {
       })
     }
     text += `景点：${(d.attractions || []).map(a => a.name).join(' -> ')}\n`
-    text += `美食：${(d.meals || []).map(m => m.name).join('、')}\n\n`
+    text += `美食：${(d.meals || []).map(m => `${getMealTypeName(m.type)}：${m.name}`).join('、')}\n\n`
   })
 
   try {
@@ -759,7 +794,7 @@ const exportMarkdown = () => {
     })
     md += `\n**🍜 美食推荐**：\n`
     ;(d.meals || []).forEach((m) => {
-      md += `- [${m.type}] **${m.name}** (人均约 ¥${m.estimated_cost || 50})\n`
+      md += `- ${getMealTypeName(m.type)}：**${m.name}** (人均约 ¥${m.estimated_cost || 50})\n`
     })
     md += `\n---\n\n`
   })
@@ -1716,6 +1751,14 @@ onUnmounted(() => {
   border-radius: 20px;
   padding: 4px 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.leg-icon {
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
 .leg-desc-text {

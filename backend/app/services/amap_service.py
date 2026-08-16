@@ -1,8 +1,9 @@
 """高德地图基础服务类（供前端接口调用）"""
 
+import re
 import requests
 from ..config import get_settings
-from typing import List,Optional
+from typing import List,Optional,Tuple
 from ..models.schemas import Location, POIInfo, WeatherInfo, RouteInfo, RouteLeg
 
 settings=get_settings()
@@ -90,68 +91,6 @@ class AmapService:
         except Exception as e:
             print(f"❌ 查询天气失败: {str(e)}")
             return []
-
-
-    def search_scenic_spot(self, spot_name: str, city: Optional[str] = None) -> dict:
-        """
-        高德官方景点综合检索：一步获取景点的精确经纬度与官方高清实景相册
-        具备智能去括号、分段重试能力，泛用性极强。
-        """
-        import re
-        # 提取核心关键词（去除 LLM 可能生成的括号修饰语，例如 "黄山风景区（前山段：迎客松）" -> "黄山风景区 迎客松"）
-        clean_name = re.sub(r"[\(（][^()（）]*?[\)）]", " ", spot_name).strip()
-        search_kw = clean_name or spot_name
-
-        url = f"{self.base_url}/place/text"
-        params = {
-            "key": self.api_key,
-            "keywords": search_kw,
-            "city": city or "",
-            "extensions": "all",
-            "children": "1",
-            "output": "json"
-        }
-        try:
-            response = requests.get(url, params=params, timeout=5)
-            data = response.json()
-            pois = data.get("pois", [])
-            
-            # 若未搜到且包含连字符，尝试取前段关键词再搜
-            if not pois and ("-" in search_kw or "·" in search_kw):
-                first_seg = re.split(r"[-·/]", search_kw)[0].strip()
-                if first_seg:
-                    params["keywords"] = first_seg
-                    res2 = requests.get(url, params=params, timeout=5)
-                    pois = res2.json().get("pois", [])
-
-            if data.get("status") == "1" and pois:
-                poi = pois[0]
-                loc_str = poi.get("location", "")
-                loc = None
-                if loc_str and "," in loc_str:
-                    lng_s, lat_s = loc_str.split(",")
-                    loc = Location(longitude=float(lng_s), latitude=float(lat_s))
-
-                photo_url = None
-                photos = poi.get("photos", [])
-                if photos and isinstance(photos, list) and len(photos) > 0:
-                    raw_url = photos[0].get("url")
-                    if raw_url:
-                        # 转换成 https 协议以防混合内容拦截
-                        photo_url = raw_url.replace("http://", "https://")
-
-                return {
-                    "name": poi.get("name", spot_name),
-                    "location": loc,
-                    "photo_url": photo_url,
-                    "address": poi.get("address") or "",
-                    "type": poi.get("type") or "",
-                    "rating": (poi.get("biz_ext") or {}).get("rating"),
-                }
-            return {}
-        except Exception as e:
-            print(f"高德景区检索异常: {e}")
-            return {}
 
 
     def get_poi_detail(self, poi_id: str) -> dict:
@@ -271,84 +210,220 @@ class AmapService:
             print(f"❌ 公交路线规划失败: {str(e)}")
             return None
 
-    def calculate_leg(self, origin_loc: Optional[Location], dest_loc: Optional[Location], from_name: str, to_name: str, city: Optional[str] = None) -> RouteLeg:
-        """
-        高德两点间真实交通距离与路程建议计算（毫秒级高德 Distance API）
-        """
-        # 若缺少坐标，尝试实时地理编码补全
-        if (not origin_loc or origin_loc.longitude == 0) and from_name:
-            clean_from = from_name.replace("(出发)", "").replace("(返程)", "").strip()
-            origin_loc = self.geocode(f"{city or ''}{clean_from}", city)
-        if (not dest_loc or dest_loc.longitude == 0) and to_name:
-            clean_to = to_name.replace("(出发)", "").replace("(返程)", "").strip()
-            dest_loc = self.geocode(f"{city or ''}{clean_to}", city)
+    def geocode(self, address: str, city: Optional[str] = None) -> Optional[Location]:
+        """地理编码：把文字地址/地点名转成经纬度坐标（GET /v3/geocode/geo），失败返回 None"""
+        if not address:
+            return None
+        url = f"{self.base_url}/geocode/geo"
+        params = {
+            "key": self.api_key,
+            "address": address,
+            "output": "json",
+        }
+        if city:
+            params["city"] = city
+        try:
+            response = requests.get(url, params=params, timeout=8)
+            data = response.json()
+            if data.get("status") == "1" and data.get("geocodes"):
+                loc_str = data["geocodes"][0].get("location", "")
+                if loc_str and "," in loc_str:
+                    lng_s, lat_s = loc_str.split(",")
+                    return Location(longitude=float(lng_s), latitude=float(lat_s))
+            return None
+        except Exception as e:
+            print(f"❌ 地理编码失败: {str(e)}", flush=True)
+            return None
 
-        if not origin_loc or not dest_loc or origin_loc.longitude == 0 or dest_loc.longitude == 0:
-            return RouteLeg(
-                from_name=from_name,
-                to_name=to_name,
-                route_type="公共交通",
-                distance_m=0,
-                duration_min=15,
-                description="市内交通便捷，建议乘公交/打车前往"
-            )
+    def search_scenic_spot(self, name: str, city: Optional[str] = None) -> dict:
+        """搜索单个景点的深度信息（真实坐标/官方实景图/地址/类型/评分），供行程后处理补全坐标与图片。
 
+        关键词去括号修饰，并按 "-·/" 分段重试一次；
+        返回结构: {name, location, photo_url, address, type, rating}，找不到返回空字典。
+        """
+        if not name:
+            return {}
+        for kw in self._build_scenic_keywords(name):
+            params = {
+                "key": self.api_key,
+                "keywords": kw,
+                "output": "json",
+                "extensions": "all",
+            }
+            if city:
+                params["city"] = city
+                params["citylimit"] = "true"
+            try:
+                response = requests.get(f"{self.base_url}/place/text", params=params, timeout=8)
+                data = response.json()
+                if data.get("status") == "1" and data.get("pois"):
+                    poi = data["pois"][0]
+                    # 坐标（经度,纬度）
+                    location = poi.get("location", "")
+                    # 官方实景图（http 统一转 https）
+                    photos = poi.get("photos") or []
+                    photo_url = ""
+                    if photos and isinstance(photos[0], dict) and photos[0].get("url"):
+                        photo_url = photos[0]["url"].replace("http://", "https://")
+                    # 地址
+                    address = poi.get("address", "")
+                    if not isinstance(address, str):
+                        address = ""
+                    # 评分（可能数字或字符串）
+                    biz_ext = poi.get("biz_ext") or {}
+                    rating = biz_ext.get("rating")
+                    try:
+                        rating = float(rating) if rating is not None else None
+                    except (TypeError, ValueError):
+                        rating = None
+                    return {
+                        "name": name,
+                        "location": location,
+                        "photo_url": photo_url,
+                        "address": address,
+                        "type": poi.get("type", "") or "",
+                        "rating": rating,
+                    }
+            except Exception as e:
+                print(f"⚠️ 景点搜索失败({kw}): {str(e)}", flush=True)
+        return {}
+
+    def _build_scenic_keywords(self, name: str) -> List[str]:
+        """生成景点检索候选关键词：先去括号修饰，再按 -·/ 分段"""
+        cands = []
+        clean = re.sub(r"[（(].*?[）)]", "", name).strip()
+        if clean:
+            cands.append(clean)
+        for sep in ("-", "·", "/"):
+            if sep in clean:
+                for seg in clean.split(sep):
+                    seg = seg.strip()
+                    if seg and seg not in cands:
+                        cands.append(seg)
+        return cands
+
+    def _get_distance(self, origin_loc: Location, dest_loc: Location) -> Tuple[float, int]:
+        """调用高德 /v3/distance 接口获取两点间驾车里程(米)与耗时(秒)，失败返回 (0, 0)"""
+        origin_str = f"{origin_loc.longitude},{origin_loc.latitude}"
+        dest_str = f"{dest_loc.longitude},{dest_loc.latitude}"
         url = f"{self.base_url}/distance"
         params = {
             "key": self.api_key,
-            "origins": f"{origin_loc.longitude},{origin_loc.latitude}",
-            "destination": f"{dest_loc.longitude},{dest_loc.latitude}",
-            "type": "1",  # 驾车/道路实际行驶距离
+            "origins": origin_str,
+            "destination": dest_str,
+            "type": "1",
+            "output": "json",
         }
         try:
-            res = requests.get(url, params=params, timeout=3).json()
-            if res.get("status") == "1" and res.get("results"):
-                dist_m = float(res["results"][0].get("distance", 0))
-                dur_s = int(res["results"][0].get("duration", 0))
-                dist_km = round(dist_m / 1000, 1)
-
-                if dist_m < 1200:
-                    walk_min = max(2, int(dist_m / 75))
-                    return RouteLeg(
-                        from_name=from_name,
-                        to_name=to_name,
-                        route_type="步行",
-                        distance_m=dist_m,
-                        duration_min=walk_min,
-                        description=f"🚶 步行约 {walk_min} 分钟（{int(dist_m)} 米）"
-                    )
-                elif dist_m < 15000:
-                    transit_min = max(8, int(dur_s / 60) + 5)
-                    taxi_cost = max(10, int(10 + max(0, dist_km - 3) * 2.4))
-                    return RouteLeg(
-                        from_name=from_name,
-                        to_name=to_name,
-                        route_type="公交/地铁/打车",
-                        distance_m=dist_m,
-                        duration_min=transit_min,
-                        description=f"🚇 公交/地铁约 {transit_min} 分钟 · {dist_km} 公里（打车约 ¥{taxi_cost}）"
-                    )
-                else:
-                    drive_min = max(15, int(dur_s / 60))
-                    taxi_cost = int(10 + max(0, dist_km - 3) * 2.4)
-                    return RouteLeg(
-                        from_name=from_name,
-                        to_name=to_name,
-                        route_type="专线/打车",
-                        distance_m=dist_m,
-                        duration_min=drive_min,
-                        description=f"🚖 专线大巴/打车约 {drive_min} 分钟 · {dist_km} 公里（打车约 ¥{taxi_cost}）"
-                    )
+            response = requests.get(url, params=params, timeout=8)
+            data = response.json()
+            if data.get("status") == "1" and data.get("results"):
+                res = data["results"][0]
+                return float(res.get("distance", 0)), int(res.get("duration", 0))
         except Exception as e:
-            print(f"高德距离计算异常: {e}")
+            print(f"⚠️ 距离接口调用失败: {str(e)}", flush=True)
+        return 0.0, 0
+
+    @staticmethod
+    def _pick_leg_mode(distance_km: float, transport_mode: str = "mixed") -> str:
+        """按距离分档 + 用户交通方式偏好，决定推荐交通方式（walking/transit/driving）"""
+        mode = (transport_mode or "mixed").strip()
+        if mode in ("walking", "transit", "driving"):
+            return mode
+        # mixed 口径：按距离自动推荐
+        if distance_km < 1.2:
+            return "walking"
+        if distance_km < 15:
+            return "transit"
+        return "driving"
+
+    @staticmethod
+    def _estimate_taxi_cost(distance_km: float) -> int:
+        """按起步价 10 元(3 公里内) + 续程 2.4 元/公里 估算打车费用"""
+        if distance_km <= 3:
+            return 10
+        return 10 + int(round(2.4 * (distance_km - 3)))
+
+    def calculate_leg(
+            self,
+            origin_loc: Optional[Location],
+            dest_loc: Optional[Location],
+            from_name: str,
+            to_name: str,
+            city: Optional[str] = None,
+            transport_mode: str = "mixed",
+    ) -> RouteLeg:
+        """
+        计算两点间一段真实动线信息（高德 /v3/distance 真实里程 + 按距离分档生成方式/耗时/费用/描述）。
+
+        transport_mode: mixed 按距离自动推荐；walking 全程步行；transit 公交/地铁；driving 打车/自驾。
+        分档规则:
+          - <1.2km   步行(75 米/分钟, ¥0)
+          - <15km    公交/地铁(驾车时长+5min 缓冲, ¥5，附打车估价 10+2.4×超 3km 里程)
+          - ≥15km    打车/专线(¥10+2.4/km)
+        坐标缺失先 geocode 补全；彻底失败返回描述性占位 RouteLeg，绝不抛异常。
+        """
+        # 1. 坐标补全（缺坐标先 geocode）
+        try:
+            if origin_loc is None or (origin_loc.longitude == 0 and origin_loc.latitude == 0):
+                origin_loc = self.geocode(f"{city or ''}{from_name}", city) or origin_loc
+            if dest_loc is None or (dest_loc.longitude == 0 and dest_loc.latitude == 0):
+                dest_loc = self.geocode(f"{city or ''}{to_name}", city) or dest_loc
+        except Exception as e:
+            print(f"⚠️ 动线坐标补全失败: {str(e)}", flush=True)
+            origin_loc = None
+            dest_loc = None
+
+        # 2. 双方都有坐标 → 调 /v3/distance 拿真实里程与驾车耗时
+        distance_m = 0.0
+        driving_duration_s = 0
+        if origin_loc and dest_loc:
+            distance_m, driving_duration_s = self._get_distance(origin_loc, dest_loc)
+
+        # 3. 彻底失败 → 返回描述性占位（不抛异常）
+        if distance_m <= 0:
+            return RouteLeg(
+                from_name=from_name,
+                to_name=to_name,
+                route_type="mixed",
+                distance_m=0,
+                duration_min=15,
+                cost=5,
+                description=f"{from_name} → {to_name}（行程信息暂缺，预计乘车约 15 分钟 · 费用约 ¥5）",
+            )
+
+        distance_km = round(distance_m / 1000.0, 1)
+        mode = self._pick_leg_mode(distance_km, transport_mode)
+
+        if mode == "walking":
+            duration_min = max(1, int(round(distance_m / 75.0)))
+            cost = 0
+            description = f"步行约 {duration_min} 分钟 · {distance_km} 公里"
+        elif mode == "transit":
+            if driving_duration_s:
+                driving_min = max(1, int(driving_duration_s / 60))
+            else:
+                driving_min = max(5, int(round(distance_km * 3)))
+            duration_min = driving_min + 5  # 公交等待/换乘缓冲
+            cost = 5
+            taxi_cost = self._estimate_taxi_cost(distance_km)
+            description = f"公交/地铁约 {duration_min} 分钟 · {distance_km} 公里（打车约 ¥{taxi_cost}）"
+        else:  # driving
+            if driving_duration_s:
+                duration_min = max(1, int(driving_duration_s / 60))
+            else:
+                duration_min = max(3, int(round(distance_km * 2)))
+            cost = self._estimate_taxi_cost(distance_km)
+            description = f"打车/自驾约 {duration_min} 分钟 · {distance_km} 公里（约 ¥{cost}）"
 
         return RouteLeg(
             from_name=from_name,
             to_name=to_name,
-            route_type="常规交通",
-            distance_m=0,
-            duration_min=20,
-            description="建议使用公共交通或打车前往"
+            route_type=mode,
+            distance_m=int(distance_m),
+            duration_min=duration_min,
+            description=description,
+            cost=cost,
         )
 
 
