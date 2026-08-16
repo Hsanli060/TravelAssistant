@@ -1,0 +1,21 @@
+# LangGraph 与 LangChain 核心框架
+langgraph>=0.2.50
+langchain-core>=0.3.20
+langchain-openai>=0.2.10
+langchain-mcp-adapters>=0.3.0
+mcp>=1.0.0
+# FastAPI 后端与 Web 服务器
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+# 数据校验与配置管理
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+# 网络请求与跨域支持
+requests>=2.31.0
+httpx>=0.27.0
+aiohttp>=3.10.0
+python-multipart>=0.0.9
+# 辅助工具与日志
+loguru>=0.7.0
+python-dateutil>=2.8.2

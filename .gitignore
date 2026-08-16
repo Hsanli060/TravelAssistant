@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+dist/
+build/
+
+# Environment files (secrets) — keep the .example templates
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.*.example
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+
+# Machine-local Claude Code settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
