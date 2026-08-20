@@ -27,8 +27,8 @@ build/
 .vscode/
 *.swp
 
-# Machine-local Claude Code settings
-.claude/settings.local.json
+# Claude Code settings & local agent data
+.claude/
 
 # OS
 .DS_Store
