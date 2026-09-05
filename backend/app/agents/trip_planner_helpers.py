@@ -216,6 +216,54 @@ def _dedupe_pois(pois: List[dict]) -> List[dict]:
     return unique
 
 
+def _dedupe_candidates(cands: List) -> List:
+    """候选去重（酒店/餐厅通用）：同名同址合并，同名不同址保留但名称加分店后缀区分。
+
+    背景 bug：连锁酒店常有多家同名分店（如家/汉庭各 N 家），若不去重：
+    1) LLM 可能把两家同名分店都选进候选池，规划总监逐日分配时出现
+       「第1天从分店A出发、第2天从同名分店B出发」的动线错乱；
+    2) poi_id 回填按名称建映射，同名会互相覆盖导致 id 错配。
+    区分策略：坐标不同 → 名称追加「(地址关键字)」后缀，既保住真实分店
+    又让名称可区分；坐标相同/均缺 → 视为同一家，保留首个。
+    """
+    seen_norms = set()   # 已出现的归一化名称
+    used_names = set()   # 已使用的最终名称（含加后缀的），保证输出名称互异
+    result: List = []
+    for c in cands:
+        norm = _normalize_poi_name(c.name)
+        if not norm:
+            continue
+        coord = (c.longitude, c.latitude)
+        if norm not in seen_norms:
+            seen_norms.add(norm)
+            used_names.add(c.name)
+            result.append(c)
+            continue
+        prev = result[0]
+        for r in result:
+            if _normalize_poi_name(r.name) == norm:
+                prev = r
+                break
+        # 同名：坐标一致（或都缺失）→ 同一家，丢弃后来者
+        same_spot = (coord == (prev.longitude, prev.latitude)) or (
+            coord[0] is None and coord[1] is None
+        ) or (prev.longitude is None and prev.latitude is None)
+        if same_spot:
+            continue
+        # 同名不同址：给后来者名称加分店后缀（取地址尾部有辨识度的段），确保最终名称互异
+        addr = (c.address or "").strip()
+        base_suffix = addr[-8:] if addr else "门店"
+        new_name = f"{c.name}({base_suffix})"
+        n = 2
+        while new_name in used_names:
+            new_name = f"{c.name}({base_suffix}{n})"
+            n += 1
+        c.name = new_name
+        used_names.add(new_name)
+        result.append(c)
+    return result
+
+
 def _parse_poi_location(location_str: str) -> tuple:
     """解析高德 '经度,纬度' 为 (longitude, latitude)，失败返回 (None, None)"""
     if not location_str or "," not in location_str:
@@ -466,11 +514,16 @@ def _fallback_hotel_food(hotel_pois: List[dict], restaurant_pois: List[dict]) ->
     for p in hotel_pois[:6]:
         #归一化名称：景区名南门、景区名北门->景区名
         name = _normalize_poi_name(p.get("name", ""))
-        if not name or name in seen_h:
+        if not name:
             continue
-        seen_h.add(name)
-        # 获取当前poi的经纬度
+        #获取当前poi的经纬度
         lng, lat = _parse_poi_location(p.get("location", ""))
+        # 去重键用「归一化名称|坐标」：同名不同址的分店是两家真店，都保留；
+        # 只按名称去重会把第二家分店的坐标错并到第一家的名称上（动线算到错误分店）。
+        key = f"{name}|{lng},{lat}"
+        if key in seen_h:
+            continue
+        seen_h.add(key)
         result.hotels.append(HotelCandidate(
             name=name,
             address=str(p.get("address", "") or ""),
@@ -484,11 +537,14 @@ def _fallback_hotel_food(hotel_pois: List[dict], restaurant_pois: List[dict]) ->
     seen_r = set()
     for p in restaurant_pois[:8]:
         name = _normalize_poi_name(p.get("name", ""))
-        if not name or name in seen_r:
+        if not name:
             continue
-        seen_r.add(name)
         #获取当前poi的经纬度
         lng, lat = _parse_poi_location(p.get("location", ""))
+        key = f"{name}|{lng},{lat}"
+        if key in seen_r:
+            continue
+        seen_r.add(key)
         result.restaurants.append(RestaurantCandidate(
             name=name,
             address=str(p.get("address", "") or ""),
@@ -594,6 +650,32 @@ def _ensure_daily_meals(trip_plan: TripPlan, hotel_food: Optional[HotelFoodResul
                     if m is df:
                         day.meals[k] = _restaurant_to_meal(alt, "dinner")
                         break
+
+
+def _unify_plan_hotel(trip_plan: TripPlan, hotel_food: Optional[HotelFoodResult]) -> None:
+    """酒店统一（确定性）：全程强制固定酒店候选池首选一家，覆盖 LLM 的逐日分配。
+
+    设计意图（PLANNER_SYSTEM_PROMPT）本就是「全程固定一家（候选池首选）」，
+    但 json_mode 无法强制 LLM 守规则：LLM 偶发把不同分店（尤其同名连锁）分配到
+    不同天，同名时用户看不出差异，动线却按 day.hotel 坐标出发，出现
+    「每天从不同门店出发」。这里用代码兜底强制执行；候选池为空时保持原样不伪造。
+    """
+    if not hotel_food or not hotel_food.hotels:
+        return
+    first = hotel_food.hotels[0]
+    loc = None
+    if first.longitude is not None and first.latitude is not None:
+        loc = Location(longitude=first.longitude, latitude=first.latitude)
+    template = Hotel(
+        name=first.name,
+        address=first.address,
+        location=loc,
+        price_range=f"约¥{first.price_per_night}/晚",
+        rating=first.rating or "",
+        estimated_cost=first.price_per_night,
+    )
+    for day in trip_plan.days:
+        day.hotel = template.model_copy(deep=True)
 
 
 def _ensure_hotel_cost(trip_plan: TripPlan, hotel_food: Optional[HotelFoodResult]) -> None:
@@ -791,7 +873,10 @@ async def _postprocess_plan(trip_plan: TripPlan, request: TripRequest, hotel_foo
     # 0.5 餐饮保底：LLM 漏排早/晚餐时从真实餐厅候选池补齐（前端契约：每天有早晚餐推荐）
     _ensure_daily_meals(trip_plan, hotel_food)
 
-    # 0.6 酒店保底：LLM 漏填 estimated_cost 或缺 hotel 时按候选池回填
+    # 0.55 酒店统一：全程强制固定候选池首选一家（同名分店不再导致每日动线出发点漂移）
+    _unify_plan_hotel(trip_plan, hotel_food)
+
+    # 0.6 酒店价格兜底：LLM 漏填 estimated_cost 时按候选池回填（酒店本体已由上一步统一）
     _ensure_hotel_cost(trip_plan, hotel_food)
 
     # 0.7 日均景点时长均衡：确定性执行 480 分钟时间窗规则，尽力把超标天景点挪到有富余的天

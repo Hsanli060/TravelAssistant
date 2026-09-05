@@ -24,16 +24,9 @@ class TripRequest(BaseModel):
             "transportation": "公共交通",
             "accommodation": "经济型酒店",
             "preferences": ["历史文化", "美食"],
-            "free_text_input": "希望多安排一些博物馆"
+            "free_text_input": ""
         }
     })
-
-class POISearchRequest(BaseModel):
-    """POI搜索请求"""
-    keywords: str = Field(..., description="搜索关键词", examples=["故宫"])
-    city: str = Field(..., description="城市", examples=["北京"])
-    citylimit: bool = Field(default=True, description="是否限制在城市范围内")
-
 
 class RouteRequest(BaseModel):
     """路线规划请求"""
@@ -65,7 +58,6 @@ class Attraction(BaseModel):
     image_url: Optional[str] = Field(default=None, description="图片URL")
     ticket_price: Optional[int] = Field(default=None, description="门票价格(元)，None 表示数据未提供（区别于免费=0）")
     open_time: Optional[str] = Field(default=None, description="开放时间（高德真实营业/开放信息，含闭馆安排）")
-
 
 class Meal(BaseModel):
     """餐饮信息"""
@@ -232,15 +224,6 @@ class WeatherResponse(BaseModel):
     success: bool = Field(..., description="是否成功")
     message: str = Field(default="", description="消息")
     data: List[WeatherInfo] = Field(default=[], description="天气信息")
-
-
-# ============ 错误响应 ============
-
-class ErrorResponse(BaseModel):
-    """错误响应"""
-    success: bool = Field(default=False, description="是否成功")
-    message: str = Field(..., description="错误消息")
-    error_code: Optional[str] = Field(default=None, description="错误代码")
 
 
 # ============ 多智能体 Agent 候选池模型 ============

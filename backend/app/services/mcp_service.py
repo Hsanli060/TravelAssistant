@@ -140,9 +140,9 @@ class MCPManager:
                 self._session_cm = self.client.session("amap")
                 self._session = await self._session_cm.__aenter__()
 
-                # 3. 用这个持久会话去加载工具。
+                # 3. 用这个持久会话去获取该MCP提供的工具：list[BaseTool]
                 # 传给 load_mcp_tools 一个 session，得到的工具就会绑定在这个会话上，
-                # 之后调用工具都走这一个会话，不再重启子进程。
+                # 闭包：每个工具调用都会绑定这个_session 不再重启子进程。
                 all_tools = await load_mcp_tools(self._session, server_name="amap")
 
                 # 4. 把工具列表（一个 list）转成"名字 -> 工具对象"的字典。
@@ -221,6 +221,7 @@ class MCPManager:
 
         # 加锁保护 stdio 会话并设置 15 秒超时，防止子进程 hang 死
         async with self._call_lock:
+            #调用工具
             result = await asyncio.wait_for(tool.ainvoke(tool_input), timeout=15.0)
 
         # ------- 解析返回结果 -------
