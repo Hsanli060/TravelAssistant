@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     api_key:str=os.getenv("OPENAI_API_KEY","")
     base_url: str = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
     model: str = os.getenv("OPENAI_MODEL", "gpt-4")
+    # 是否允许使用服务端默认 API Key（默认 False 严格模式；本地 .env 配置 true 保持现状）
+    allow_default_key: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -69,7 +71,8 @@ def get_settings() -> Settings:
 def validate_config() -> None:
     """校验必要配置项，缺失时抛出异常（通常在应用启动时调用）"""
     missing = []
-    if not settings.api_key:
+    # 仅当允许默认 Key 时，OPENAI_API_KEY 才是启动硬依赖
+    if settings.allow_default_key and not settings.api_key:
         missing.append("OPENAI_API_KEY")
     if not settings.amap_api_key:
         missing.append("AMAP_API_KEY")
@@ -81,6 +84,7 @@ def print_config() -> None:
     """打印当前配置摘要（不打印密钥明文）"""
     print(f"  应用: {settings.app_name} v{settings.app_version}")
     print(f"  大模型: {settings.model} ({settings.base_url})")
+    print(f"  默认Key回退: {'✅ 允许 (ALLOW_DEFAULT_KEY=true)' if settings.allow_default_key else '🔒 严格模式 (要求自带 Key)'}")
     print(f"  高德地图: {'✅ 已配置' if settings.amap_api_key else '❌ 未配置'}")
     print(f"  Unsplash: {'✅ 已配置' if settings.unsplash_access_key else '⚠️ 未配置（使用默认图片）'}")
     print(f"  日志级别: {settings.log_level}")

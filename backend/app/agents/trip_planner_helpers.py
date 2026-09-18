@@ -24,6 +24,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from ..config import get_settings
+from ..services.llm_override import get_llm_override
 from ..models.schemas import (
     Attraction,
     AttractionCandidate,
@@ -62,10 +63,23 @@ _weather_react_agent_instance: Optional[Any] = None
 
 
 def _get_fast_llm() -> ChatOpenAI:
-    """惰性创建快速模型实例（温度 0.2、30s 超时），供三个数据 Agent 做结构化甄选/参数化"""
+    """惰性创建快速模型实例（温度 0.2、30s 超时），供三个数据 Agent 做结构化甄选/参数化。
+    若当前请求存在用户自带 Key (BYOK) 重载，则临时构造独立实例，不污染全局单例缓存。
+    """
+    override = get_llm_override()
+    settings = get_settings()
+    if override:
+        return ChatOpenAI(
+            api_key=override.api_key,
+            base_url=override.base_url or settings.base_url,
+            model=settings.model,
+            temperature=0.2,
+            request_timeout=30.0,
+            max_retries=2,
+        )
+
     global _fast_llm_instance
     if _fast_llm_instance is None:
-        settings = get_settings()
         _fast_llm_instance = ChatOpenAI(
             api_key=settings.api_key,
             base_url=settings.base_url,
@@ -78,10 +92,23 @@ def _get_fast_llm() -> ChatOpenAI:
 
 
 def _get_planner_llm() -> ChatOpenAI:
-    """惰性创建规划总监模型实例（温度 0.4、120s 超时，适配大规模结构化输出）"""
+    """惰性创建规划总监模型实例（温度 0.4、120s 超时，适配大规模结构化输出）。
+    若当前请求存在用户自带 Key 重载，则临时构造独立实例。
+    """
+    override = get_llm_override()
+    settings = get_settings()
+    if override:
+        return ChatOpenAI(
+            api_key=override.api_key,
+            base_url=override.base_url or settings.base_url,
+            model=settings.model,
+            temperature=0.4,
+            request_timeout=120.0,
+            max_retries=2,
+        )
+
     global _planner_llm_instance
     if _planner_llm_instance is None:
-        settings = get_settings()
         _planner_llm_instance = ChatOpenAI(
             api_key=settings.api_key,
             base_url=settings.base_url,
@@ -94,7 +121,17 @@ def _get_planner_llm() -> ChatOpenAI:
 
 
 def _get_weather_react_agent():
-    """惰性构建天气 ReAct Agent（带缓存）：LLM + maps_weather 工具 + 系统提示词"""
+    """惰性构建天气 ReAct Agent（带缓存）：LLM + maps_weather 工具 + 系统提示词。
+    注意：ReAct Agent 内部直接绑定了 LLM 实例引用，若存在 override 必须动态重建，不可复用单例！
+    """
+    override = get_llm_override()
+    if override:
+        return create_react_agent(
+            _get_fast_llm(),
+            tools=[weather_tool],
+            prompt=WEATHER_REACT_SYSTEM_PROMPT,
+        )
+
     global _weather_react_agent_instance
     if _weather_react_agent_instance is None:
         _weather_react_agent_instance = create_react_agent(

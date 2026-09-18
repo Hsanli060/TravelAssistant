@@ -36,3 +36,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Personal docs & Interview materials
+docs/面试问答背诵手册*
+*.pdf
+backend/tests/md2pdf*

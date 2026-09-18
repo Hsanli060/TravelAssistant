@@ -87,13 +87,16 @@ body {
   background: #94a3b8;
 }
 
-/* 全局 Ant Design Vue 微调以适配极简风格 */
+/* 全局 Ant Design Vue 微调以适配典雅高尚风格 */
 .ant-btn-primary {
-  background-color: #2563eb !important;
-  border-color: #2563eb !important;
+  background-color: #1e3a8a !important;
+  border-color: #1e3a8a !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px 0 rgba(30, 58, 138, 0.2) !important;
 }
 
-.ant-btn-primary:hover {
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
   background-color: #1d4ed8 !important;
   border-color: #1d4ed8 !important;
 }

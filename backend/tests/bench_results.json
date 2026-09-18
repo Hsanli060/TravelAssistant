@@ -1,0 +1,596 @@
+{
+  "timestamp": "2026-09-18T19:18:57.827580",
+  "rounds_count": 9,
+  "request_city": "北京",
+  "travel_days": 3,
+  "metrics": {
+    "serial_median_wall": 31.661,
+    "parallel_median_wall": 22.373,
+    "overall_reduction_pct": 29.34,
+    "serial_three_phase_median": 20.016,
+    "parallel_three_phase_median": 10.299,
+    "three_phase_reduction_pct": 48.55,
+    "median_lock_contention": 0.0,
+    "planner_median_dur": 12.072
+  },
+  "raw_parallel": [
+    {
+      "mode": "parallel",
+      "round_name": "R1",
+      "wall_time": 21.847,
+      "weather_dur": 4.974,
+      "hotel_dur": 10.752,
+      "attraction_dur": 8.419,
+      "planner_dur": 11.093,
+      "sum_three": 24.145,
+      "max_three": 10.752,
+      "three_phase_wall": 10.752,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        4.976
+      ],
+      "hotel_span": [
+        0.001,
+        10.753
+      ],
+      "attraction_span": [
+        0.001,
+        8.42
+      ],
+      "planner_span": [
+        10.754,
+        21.847
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R2",
+      "wall_time": 20.364,
+      "weather_dur": 5.045,
+      "hotel_dur": 10.131,
+      "attraction_dur": 8.523,
+      "planner_dur": 10.231,
+      "sum_three": 23.699,
+      "max_three": 10.131,
+      "three_phase_wall": 10.131,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        5.046
+      ],
+      "hotel_span": [
+        0.001,
+        10.132
+      ],
+      "attraction_span": [
+        0.001,
+        8.524
+      ],
+      "planner_span": [
+        10.133,
+        20.364
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R3",
+      "wall_time": 24.19,
+      "weather_dur": 4.868,
+      "hotel_dur": 10.679,
+      "attraction_dur": 8.527,
+      "planner_dur": 13.509,
+      "sum_three": 24.074,
+      "max_three": 10.679,
+      "three_phase_wall": 10.679,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        4.869
+      ],
+      "hotel_span": [
+        0.001,
+        10.68
+      ],
+      "attraction_span": [
+        0.001,
+        8.528
+      ],
+      "planner_span": [
+        10.68,
+        24.189
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R4",
+      "wall_time": 25.262,
+      "weather_dur": 5.05,
+      "hotel_dur": 9.925,
+      "attraction_dur": 8.806,
+      "planner_dur": 15.335,
+      "sum_three": 23.781,
+      "max_three": 9.925,
+      "three_phase_wall": 9.925,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        5.051
+      ],
+      "hotel_span": [
+        0.001,
+        9.926
+      ],
+      "attraction_span": [
+        0.001,
+        8.807
+      ],
+      "planner_span": [
+        9.927,
+        25.262
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R5",
+      "wall_time": 24.085,
+      "weather_dur": 4.188,
+      "hotel_dur": 10.312,
+      "attraction_dur": 8.934,
+      "planner_dur": 13.769,
+      "sum_three": 23.434,
+      "max_three": 10.312,
+      "three_phase_wall": 10.312,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.003,
+        4.191
+      ],
+      "hotel_span": [
+        0.003,
+        10.314
+      ],
+      "attraction_span": [
+        0.002,
+        8.935
+      ],
+      "planner_span": [
+        10.315,
+        24.084
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R6",
+      "wall_time": 19.698,
+      "weather_dur": 5.039,
+      "hotel_dur": 10.437,
+      "attraction_dur": 8.911,
+      "planner_dur": 9.258,
+      "sum_three": 24.387,
+      "max_three": 10.437,
+      "three_phase_wall": 10.438,
+      "lock_contention": 0.001,
+      "weather_span": [
+        0.002,
+        5.041
+      ],
+      "hotel_span": [
+        0.002,
+        10.439
+      ],
+      "attraction_span": [
+        0.001,
+        8.913
+      ],
+      "planner_span": [
+        10.44,
+        19.697
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R7",
+      "wall_time": 21.978,
+      "weather_dur": 4.796,
+      "hotel_dur": 10.228,
+      "attraction_dur": 8.85,
+      "planner_dur": 11.747,
+      "sum_three": 23.874,
+      "max_three": 10.228,
+      "three_phase_wall": 10.228,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        4.797
+      ],
+      "hotel_span": [
+        0.001,
+        10.229
+      ],
+      "attraction_span": [
+        0.001,
+        8.85
+      ],
+      "planner_span": [
+        10.231,
+        21.978
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R8",
+      "wall_time": 22.373,
+      "weather_dur": 5.207,
+      "hotel_dur": 10.299,
+      "attraction_dur": 8.804,
+      "planner_dur": 12.072,
+      "sum_three": 24.31,
+      "max_three": 10.299,
+      "three_phase_wall": 10.299,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        5.208
+      ],
+      "hotel_span": [
+        0.001,
+        10.3
+      ],
+      "attraction_span": [
+        0.001,
+        8.805
+      ],
+      "planner_span": [
+        10.3,
+        22.372
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "parallel",
+      "round_name": "R9",
+      "wall_time": 22.921,
+      "weather_dur": 5.317,
+      "hotel_dur": 10.001,
+      "attraction_dur": 8.769,
+      "planner_dur": 12.917,
+      "sum_three": 24.087,
+      "max_three": 10.001,
+      "three_phase_wall": 10.001,
+      "lock_contention": 0.0,
+      "weather_span": [
+        0.001,
+        5.318
+      ],
+      "hotel_span": [
+        0.001,
+        10.002
+      ],
+      "attraction_span": [
+        0.001,
+        8.77
+      ],
+      "planner_span": [
+        10.003,
+        22.92
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    }
+  ],
+  "raw_serial": [
+    {
+      "mode": "serial",
+      "round_name": "R1",
+      "wall_time": 31.172,
+      "weather_dur": 4.236,
+      "hotel_dur": 8.411,
+      "attraction_dur": 7.147,
+      "planner_dur": 11.376,
+      "sum_three": 19.794,
+      "max_three": 8.411,
+      "three_phase_wall": 19.795,
+      "lock_contention": 11.384,
+      "weather_span": [
+        0.001,
+        4.237
+      ],
+      "hotel_span": [
+        4.237,
+        12.648
+      ],
+      "attraction_span": [
+        12.648,
+        19.796
+      ],
+      "planner_span": [
+        19.796,
+        31.172
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R2",
+      "wall_time": 30.979,
+      "weather_dur": 4.531,
+      "hotel_dur": 8.722,
+      "attraction_dur": 6.762,
+      "planner_dur": 10.962,
+      "sum_three": 20.015,
+      "max_three": 8.722,
+      "three_phase_wall": 20.016,
+      "lock_contention": 11.294,
+      "weather_span": [
+        0.001,
+        4.532
+      ],
+      "hotel_span": [
+        4.532,
+        13.255
+      ],
+      "attraction_span": [
+        13.255,
+        20.017
+      ],
+      "planner_span": [
+        20.017,
+        30.979
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R3",
+      "wall_time": 32.091,
+      "weather_dur": 4.324,
+      "hotel_dur": 8.549,
+      "attraction_dur": 6.675,
+      "planner_dur": 12.541,
+      "sum_three": 19.548,
+      "max_three": 8.549,
+      "three_phase_wall": 19.548,
+      "lock_contention": 10.999,
+      "weather_span": [
+        0.001,
+        4.324
+      ],
+      "hotel_span": [
+        4.325,
+        12.873
+      ],
+      "attraction_span": [
+        12.874,
+        19.549
+      ],
+      "planner_span": [
+        19.55,
+        32.091
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R4",
+      "wall_time": 31.661,
+      "weather_dur": 4.351,
+      "hotel_dur": 9.1,
+      "attraction_dur": 7.137,
+      "planner_dur": 11.072,
+      "sum_three": 20.588,
+      "max_three": 9.1,
+      "three_phase_wall": 20.588,
+      "lock_contention": 11.488,
+      "weather_span": [
+        0.001,
+        4.351
+      ],
+      "hotel_span": [
+        4.352,
+        13.451
+      ],
+      "attraction_span": [
+        13.452,
+        20.589
+      ],
+      "planner_span": [
+        20.589,
+        31.661
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R5",
+      "wall_time": 35.015,
+      "weather_dur": 4.506,
+      "hotel_dur": 8.284,
+      "attraction_dur": 7.298,
+      "planner_dur": 14.925,
+      "sum_three": 20.088,
+      "max_three": 8.284,
+      "three_phase_wall": 20.087,
+      "lock_contention": 11.803,
+      "weather_span": [
+        0.001,
+        4.506
+      ],
+      "hotel_span": [
+        4.506,
+        12.79
+      ],
+      "attraction_span": [
+        12.791,
+        20.088
+      ],
+      "planner_span": [
+        20.089,
+        35.014
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R6",
+      "wall_time": 33.841,
+      "weather_dur": 4.202,
+      "hotel_dur": 8.331,
+      "attraction_dur": 7.921,
+      "planner_dur": 13.384,
+      "sum_three": 20.454,
+      "max_three": 8.331,
+      "three_phase_wall": 20.455,
+      "lock_contention": 12.124,
+      "weather_span": [
+        0.001,
+        4.203
+      ],
+      "hotel_span": [
+        4.203,
+        12.535
+      ],
+      "attraction_span": [
+        12.535,
+        20.456
+      ],
+      "planner_span": [
+        20.457,
+        33.841
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R7",
+      "wall_time": 33.939,
+      "weather_dur": 4.409,
+      "hotel_dur": 9.224,
+      "attraction_dur": 7.405,
+      "planner_dur": 12.897,
+      "sum_three": 21.038,
+      "max_three": 9.224,
+      "three_phase_wall": 21.04,
+      "lock_contention": 11.816,
+      "weather_span": [
+        0.001,
+        4.411
+      ],
+      "hotel_span": [
+        4.411,
+        13.636
+      ],
+      "attraction_span": [
+        13.636,
+        21.041
+      ],
+      "planner_span": [
+        21.042,
+        33.939
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R8",
+      "wall_time": 28.91,
+      "weather_dur": 4.082,
+      "hotel_dur": 7.963,
+      "attraction_dur": 7.641,
+      "planner_dur": 9.222,
+      "sum_three": 19.686,
+      "max_three": 7.963,
+      "three_phase_wall": 19.686,
+      "lock_contention": 11.723,
+      "weather_span": [
+        0.001,
+        4.083
+      ],
+      "hotel_span": [
+        4.083,
+        12.046
+      ],
+      "attraction_span": [
+        12.047,
+        19.687
+      ],
+      "planner_span": [
+        19.688,
+        28.91
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    },
+    {
+      "mode": "serial",
+      "round_name": "R9",
+      "wall_time": 27.802,
+      "weather_dur": 4.2,
+      "hotel_dur": 8.098,
+      "attraction_dur": 7.342,
+      "planner_dur": 8.158,
+      "sum_three": 19.64,
+      "max_three": 8.098,
+      "three_phase_wall": 19.642,
+      "lock_contention": 11.544,
+      "weather_span": [
+        0.001,
+        4.201
+      ],
+      "hotel_span": [
+        4.202,
+        12.3
+      ],
+      "attraction_span": [
+        12.301,
+        19.643
+      ],
+      "planner_span": [
+        19.644,
+        27.802
+      ],
+      "errors_count": 1,
+      "is_valid": true,
+      "plan_days": 3
+    }
+  ]
+}

@@ -4,37 +4,42 @@
     <header class="top-nav-bar">
       <div class="nav-left">
         <button class="back-btn" @click="handleBackToHome">
-          <span class="btn-arrow">←</span>
+          <ArrowLeftOutlined class="btn-arrow" />
           <span>返回重新规划</span>
         </button>
         <div class="trip-main-title">
-          <span class="city-badge">📍 {{ tripPlan.city }}</span>
+          <span class="city-badge"><EnvironmentOutlined class="badge-icon" /> {{ tripPlan.city }}</span>
           <span class="days-badge">{{ tripPlan.start_date }} ~ {{ tripPlan.end_date }} · 共 {{ tripPlan.days?.length || 0 }} 天</span>
         </div>
       </div>
 
       <div class="nav-right no-print">
         <button class="copy-text-btn" @click="copyPlanToClipboard" title="一键复制行程文本">
-          <span>📋 复制文本</span>
+          <CopyOutlined class="btn-icon" />
+          <span>复制行程</span>
         </button>
 
         <a-dropdown :trigger="['click']">
           <template #overlay>
             <a-menu @click="handleExportMenu">
               <a-menu-item key="markdown">
-                <span>📝 导出 Markdown 清单 (.md)</span>
+                <FileMarkdownOutlined class="menu-icon" />
+                <span>导出 Markdown (.md)</span>
               </a-menu-item>
               <a-menu-item key="image">
-                <span>🖼️ 导出为长图 (PNG)</span>
+                <PictureOutlined class="menu-icon" />
+                <span>导出长图 (PNG)</span>
               </a-menu-item>
               <a-menu-item key="print">
-                <span>🖨️ 打印 / 另存为 PDF</span>
+                <PrinterOutlined class="menu-icon" />
+                <span>打印 / 另存为 PDF</span>
               </a-menu-item>
             </a-menu>
           </template>
           <button class="export-dropdown-btn">
-            <span>📥 导出与分享</span>
-            <span class="arrow-down">▼</span>
+            <ExportOutlined class="btn-icon" />
+            <span>导出与分享</span>
+            <DownOutlined class="arrow-down" />
           </button>
         </a-dropdown>
       </div>
@@ -48,7 +53,7 @@
           <!-- 总体建议卡片 -->
           <div class="clean-card overview-panel">
             <div class="panel-header">
-              <span class="panel-icon">💡</span>
+              <BulbOutlined class="panel-icon" />
               <h3 class="panel-title">规划总监出行锦囊</h3>
             </div>
             <div class="suggestions-text">
@@ -56,10 +61,10 @@
             </div>
           </div>
 
-          <!-- 🌤️ 天气概况卡片 (如果有返回 weather_info) -->
+          <!-- 天气概况卡片 (如果有返回 weather_info) -->
           <div v-if="tripPlan.weather_info && tripPlan.weather_info.length > 0" class="clean-card weather-panel">
             <div class="panel-header">
-              <span class="panel-icon">🌤️</span>
+              <CloudOutlined class="panel-icon" />
               <h3 class="panel-title">目的地气象预报</h3>
             </div>
             <div class="weather-grid">
@@ -72,41 +77,41 @@
             </div>
           </div>
 
-          <!-- 💰 预算全景卡片 -->
+          <!-- 预算全景卡片 -->
           <div v-if="tripPlan.budget" class="clean-card budget-panel">
             <div class="panel-header">
-              <span class="panel-icon">💰</span>
+              <WalletOutlined class="panel-icon" />
               <h3 class="panel-title">全程预算精算明细</h3>
-              <span class="budget-subtitle">AI 精算 + POI 实际校验</span>
+              <span class="budget-subtitle">AI 精算 + 空间真实数据校验</span>
             </div>
 
             <div class="budget-grid-cards">
-              <div class="budget-card-mini">
-                <div class="b-icon">🎟️</div>
+              <div class="budget-card-mini is-attractions">
+                <div class="b-icon"><TagOutlined /></div>
                 <div class="b-info">
                   <div class="b-label">景点门票</div>
                   <div class="b-value">¥{{ tripPlan.budget.total_attractions }}</div>
                 </div>
               </div>
 
-              <div class="budget-card-mini">
-                <div class="b-icon">🏨</div>
+              <div class="budget-card-mini is-hotels">
+                <div class="b-icon"><HomeOutlined /></div>
                 <div class="b-info">
                   <div class="b-label">酒店住宿</div>
                   <div class="b-value">¥{{ tripPlan.budget.total_hotels }}</div>
                 </div>
               </div>
 
-              <div class="budget-card-mini">
-                <div class="b-icon">🍜</div>
+              <div class="budget-card-mini is-meals">
+                <div class="b-icon"><CoffeeOutlined /></div>
                 <div class="b-info">
                   <div class="b-label">餐饮美食</div>
                   <div class="b-value">¥{{ tripPlan.budget.total_meals }}</div>
                 </div>
               </div>
 
-              <div class="budget-card-mini">
-                <div class="b-icon">🚌</div>
+              <div class="budget-card-mini is-transport">
+                <div class="b-icon"><CarOutlined /></div>
                 <div class="b-info">
                   <div class="b-label">市内交通</div>
                   <div class="b-value">¥{{ tripPlan.budget.total_transportation }}</div>
@@ -132,7 +137,7 @@
           <div class="clean-card map-panel">
             <div class="map-header">
               <div class="map-title-wrap">
-                <span class="panel-icon">📍</span>
+                <CompassOutlined class="panel-icon" />
                 <h3 class="panel-title">高德地图动线轨迹</h3>
               </div>
 
@@ -173,7 +178,7 @@
       <!-- 逐日详细行程安排列表 -->
       <section class="days-itinerary-section">
         <div class="section-title-wrap">
-          <span class="sec-icon">📅</span>
+          <CalendarOutlined class="sec-icon" />
           <h2 class="sec-title">每日游玩详细安排</h2>
         </div>
 
@@ -192,21 +197,21 @@
               </div>
             </div>
 
-            <!-- 🏨 当日精选住宿卡片（含地址与价格，支持点击定位地图） -->
+            <!-- 当日精选住宿卡片（含地址与价格，支持点击定位地图） -->
             <div class="day-hotel-card" v-if="day.hotel" @click="focusOnHotel(day.hotel)">
               <div class="hotel-card-left">
                 <div class="hotel-name-row">
-                  <span class="hotel-pill">🏨 住宿安排</span>
+                  <span class="hotel-pill"><HomeOutlined /> 住宿安排</span>
                   <span class="hotel-title">{{ day.hotel.name }}</span>
                 </div>
                 <div class="hotel-addr-row" v-if="day.hotel.address">
-                  <span class="addr-icon">📍</span>
+                  <EnvironmentOutlined class="addr-icon" />
                   <span class="addr-text">{{ day.hotel.address }}</span>
                 </div>
               </div>
               <div class="hotel-card-right">
                 <div class="hotel-cost-val">预估 ¥{{ day.hotel.estimated_cost || 350 }}<span class="cost-unit">/晚</span></div>
-                <span class="hotel-loc-btn">在地图查看 ↗</span>
+                <span class="hotel-loc-btn">在地图查看</span>
               </div>
             </div>
 
@@ -215,10 +220,10 @@
               {{ day.description }}
             </div>
 
-            <!-- 🛣️ 每日完整点对点动线与路程明细 (住宿 -> 景点 -> 景点 -> 住宿) -->
+            <!-- 每日完整点对点动线与路程明细 (住宿 -> 景点 -> 景点 -> 住宿) -->
             <div class="transit-flow-box" v-if="day.legs && day.legs.length > 0">
               <div class="sub-sec-header">
-                <span class="sub-sec-title">🛣️ 每日完整动线与路程交通明细</span>
+                <span class="sub-sec-title"><NodeIndexOutlined class="sub-title-icon" /> 每日完整动线与路程交通明细</span>
                 <span class="sub-sec-hint">（高德地图实时距离与耗时精算）</span>
               </div>
 
@@ -230,7 +235,8 @@
                 >
                   <div class="step-point-node">
                     <div class="point-badge" :class="{ 'is-hotel': leg.from_name.includes('酒店') }">
-                      {{ leg.from_name.includes('酒店') ? '🏨' : (legIdx + 1) }}
+                      <HomeOutlined v-if="leg.from_name.includes('酒店')" />
+                      <span v-else>{{ legIdx + 1 }}</span>
                     </div>
                     <span class="point-name">{{ leg.from_name }}</span>
                   </div>
@@ -238,24 +244,24 @@
                   <div class="step-route-leg">
                     <div class="leg-dash-line"></div>
                     <div class="leg-pill-badge">
-                      <span class="leg-icon">{{ getLegIcon(leg.route_type || '') }}</span>
+                      <span class="leg-type-badge">{{ getLegTypeName(leg.route_type || '') }}</span>
                       <span class="leg-desc-text">{{ getLegDesc(leg) }}</span>
                     </div>
                   </div>
 
                   <!-- 最后一个终点节点 -->
                   <div class="step-point-node" v-if="legIdx === day.legs.length - 1">
-                    <div class="point-badge is-hotel">🏨</div>
+                    <div class="point-badge is-hotel"><HomeOutlined /></div>
                     <span class="point-name">{{ leg.to_name }}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- 🏛️ 每日景点动线与图文介绍 -->
+            <!-- 每日景点动线与图文介绍 -->
             <div class="timeline-attractions" v-if="day.attractions && day.attractions.length > 0">
               <div class="sub-sec-header">
-                <span class="sub-sec-title">🏛️ 游览景点详情与门票</span>
+                <span class="sub-sec-title"><CameraOutlined class="sub-title-icon" /> 游览景点详情与门票</span>
                 <span class="sub-sec-hint">（点击卡片可在右上方地图快速定位）</span>
               </div>
 
@@ -287,16 +293,16 @@
                     <div class="attr-header-row">
                       <h4 class="attr-name">{{ attr.name }}</h4>
                       <span class="attr-duration" v-if="attr.visit_duration">
-                        ⏱️ {{ attr.visit_duration }} 分钟
+                        <ClockCircleOutlined class="attr-meta-icon" /> {{ attr.visit_duration }} 分钟
                       </span>
                     </div>
                     <p class="attr-desc">{{ attr.description || '知名景点，推荐细细游览感受当地风情。' }}</p>
                     <div class="attr-address" v-if="attr.address">
-                      <span class="addr-icon">📍</span>
+                      <EnvironmentOutlined class="addr-icon" />
                       <span class="addr-text">{{ attr.address }}</span>
                     </div>
                     <div class="attr-address" v-if="attr.open_time" :title="attr.open_time">
-                      <span class="addr-icon">🕒</span>
+                      <ClockCircleOutlined class="addr-icon" />
                       <span class="addr-text">{{ attr.open_time }}</span>
                     </div>
                   </div>
@@ -307,7 +313,7 @@
             <!-- 每日餐饮推荐 -->
             <div class="meals-section" v-if="day.meals && day.meals.length > 0">
               <div class="sub-sec-header">
-                <span class="sub-sec-title">🍜 特色餐饮推荐</span>
+                <span class="sub-sec-title"><CoffeeOutlined class="sub-title-icon" /> 特色餐饮推荐</span>
               </div>
               <div class="meals-grid">
                 <div
@@ -338,6 +344,28 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { message } from 'ant-design-vue'
+import {
+  ArrowLeftOutlined,
+  EnvironmentOutlined,
+  CopyOutlined,
+  FileMarkdownOutlined,
+  PictureOutlined,
+  PrinterOutlined,
+  ExportOutlined,
+  DownOutlined,
+  BulbOutlined,
+  CloudOutlined,
+  WalletOutlined,
+  TagOutlined,
+  HomeOutlined,
+  CoffeeOutlined,
+  CarOutlined,
+  CompassOutlined,
+  CalendarOutlined,
+  NodeIndexOutlined,
+  CameraOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons-vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import html2canvas from 'html2canvas'
 import type { TripPlan, Attraction, RouteLeg, Meal } from '../types'
@@ -391,22 +419,21 @@ const currentMapDay = ref(-1) // -1 表示显示全部天数
 
 const getMealTypeName = (type: string) => {
   switch (type) {
-    case 'breakfast': return '🌅 早餐'
-    case 'lunch': return '☀️ 午餐'
-    case 'dinner': return '🌙 晚餐'
-    case 'snack': return '🍢 特色小吃'
-    default: return '🍴 餐饮'
+    case 'breakfast': return '早餐'
+    case 'lunch': return '午餐'
+    case 'dinner': return '晚餐'
+    case 'snack': return '特色小吃'
+    default: return '餐饮'
   }
 }
 
-// 动线段交通工具图标（按 route_type 中文关键字映射）
-const getLegIcon = (routeType: string) => {
-  if (!routeType) return '🚌'
-  // 后端 calculate_leg 产出英文枚举：walking / transit / driving / mixed
-  if (routeType === 'walking' || routeType.includes('步行')) return '🚶'
-  if (routeType === 'transit' || routeType.includes('公交') || routeType.includes('地铁') || routeType.includes('公共交通')) return '🚇'
-  if (routeType === 'driving' || routeType.includes('打车') || routeType.includes('专线') || routeType.includes('驾')) return '🚖'
-  return '🚌'
+// 动线段交通方式类型文本
+const getLegTypeName = (routeType: string) => {
+  if (!routeType) return '公共交通'
+  if (routeType === 'walking' || routeType.includes('步行')) return '步行'
+  if (routeType === 'transit' || routeType.includes('公交') || routeType.includes('地铁') || routeType.includes('公共交通')) return '公共交通'
+  if (routeType === 'driving' || routeType.includes('打车') || routeType.includes('专线') || routeType.includes('驾')) return '打车/驾车'
+  return '路程'
 }
 
 // 动线段描述（cost 存在且 >0 时追加估算费用）
@@ -506,8 +533,8 @@ const renderMarkersAndRoutes = async (dayFilter: number) => {
     ? (tripPlan.value.days || [])
     : (tripPlan.value.days || []).filter((_, idx) => idx === dayFilter)
 
-  // 经典自然天数颜色（清爽、克制）
-  const dayColors = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#0891b2', '#e11d48']
+  // 经典自然天数颜色（典雅、清晰）
+  const dayColors = ['#1d4ed8', '#059669', '#d97706', '#7c3aed', '#0284c7', '#e11d48']
   const geocoder = new window.AMap.Geocoder({ city: tripPlan.value.city })
 
   for (let d = 0; d < daysToRender.length; d++) {
@@ -540,7 +567,7 @@ const renderMarkersAndRoutes = async (dayFilter: number) => {
 
         const hotelMarkerContent = document.createElement('div')
         hotelMarkerContent.className = 'clean-hotel-marker'
-        hotelMarkerContent.innerHTML = `<span class="hotel-marker-icon">🏨</span>`
+        hotelMarkerContent.innerHTML = `<span class="hotel-marker-icon">住</span>`
 
         const hotelMarker = new window.AMap.Marker({
           position: hotelPos,
@@ -641,10 +668,10 @@ const openInfoWindow = (attr: Attraction, position: any) => {
   if (!mapInstance || !infoWindowInstance) return
 
   const content = `
-    <div style="padding: 10px 12px; max-width: 260px; font-family: -apple-system, sans-serif;">
-      <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px; color: #0f172a;">${attr.name}</div>
-      <div style="font-size: 12px; color: #475569; margin-bottom: 3px;">⏱️ 建议游玩: ${attr.visit_duration || 120} 分钟</div>
-      <div style="font-size: 12px; color: #2563eb; font-weight: 600; margin-bottom: 6px;">🎟️ 门票: ${attr.ticket_price ? '¥' + attr.ticket_price : '免费'}</div>
+    <div style="padding: 10px 12px; max-width: 260px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #0f172a;">${attr.name}</div>
+      <div style="font-size: 12px; color: #475569; margin-bottom: 3px;">建议游玩: ${attr.visit_duration || 120} 分钟</div>
+      <div style="font-size: 12px; color: #059669; font-weight: 600; margin-bottom: 6px;">门票: ${attr.ticket_price ? '¥' + attr.ticket_price : '免费'}</div>
       <div style="font-size: 12px; color: #334155; line-height: 1.5;">${attr.description || ''}</div>
     </div>
   `
@@ -657,10 +684,10 @@ const openHotelInfoWindow = (hotel: any, position: any) => {
   if (!mapInstance || !infoWindowInstance) return
 
   const content = `
-    <div style="padding: 10px 12px; max-width: 260px; font-family: -apple-system, sans-serif;">
-      <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px; color: #b45309;">🏨 ${hotel.name}</div>
-      <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">📍 地址: ${hotel.address || '优质核心地段'}</div>
-      <div style="font-size: 12px; color: #d97706; font-weight: 600; margin-bottom: 4px;">💰 预估费用: 约 ¥${hotel.estimated_cost || 350}/晚</div>
+    <div style="padding: 10px 12px; max-width: 260px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #92400e;">${hotel.name}</div>
+      <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">地址: ${hotel.address || '优质核心地段'}</div>
+      <div style="font-size: 12px; color: #d97706; font-weight: 600; margin-bottom: 4px;">预估费用: 约 ¥${hotel.estimated_cost || 350}/晚</div>
       <div style="font-size: 11px; color: #64748b;">今日旅行出发与返程入住地</div>
     </div>
   `
@@ -768,31 +795,31 @@ const handleExportMenu = ({ key }: { key: string }) => {
 // 导出为 Markdown 文件
 const exportMarkdown = () => {
   const plan = tripPlan.value
-  let md = `# ✈️ ${plan.city}旅行规划方案\n\n`
+  let md = `# ${plan.city}旅行规划方案\n\n`
   md += `**出行日期**：${plan.start_date} 至 ${plan.end_date} (共 ${plan.days?.length || 0} 天)\n\n`
-  md += `### 💡 综合出行建议\n${plan.overall_suggestions || '祝您旅途愉快！'}\n\n`
+  md += `### 综合出行建议\n${plan.overall_suggestions || '祝您旅途愉快！'}\n\n`
 
   if (plan.budget) {
-    md += `### 💰 全程预算明细\n`
-    md += `- 🎟️ 景点门票总计：¥${plan.budget.total_attractions}\n`
-    md += `- 🏨 酒店住宿总计：¥${plan.budget.total_hotels}\n`
-    md += `- 🍜 餐饮美食总计：¥${plan.budget.total_meals}\n`
-    md += `- 🚌 市内交通总计：¥${plan.budget.total_transportation}\n`
-    md += `- **💵 预估总费用：¥${plan.budget.total}**\n\n`
+    md += `### 全程预算明细\n`
+    md += `- 景点门票总计：¥${plan.budget.total_attractions}\n`
+    md += `- 酒店住宿总计：¥${plan.budget.total_hotels}\n`
+    md += `- 餐饮美食总计：¥${plan.budget.total_meals}\n`
+    md += `- 市内交通总计：¥${plan.budget.total_transportation}\n`
+    md += `- **预估总费用：¥${plan.budget.total}**\n\n`
   }
 
-  md += `---\n\n## 📅 每日详细行程\n\n`
+  md += `---\n\n## 每日详细行程\n\n`
   ;(plan.days || []).forEach((d) => {
     md += `### Day ${d.day_index + 1} (${d.date})\n`
     md += `**行程概述**：${d.description || ''}\n\n`
     if (d.hotel) {
-      md += `**🏨 住宿推荐**：${d.hotel.name} (预估 ¥${d.hotel.estimated_cost || 300}/晚)\n\n`
+      md += `**住宿推荐**：${d.hotel.name} (预估 ¥${d.hotel.estimated_cost || 300}/晚)\n\n`
     }
-    md += `**🏛️ 景点游览**：\n`
+    md += `**景点游览**：\n`
     ;(d.attractions || []).forEach((a, i) => {
       md += `${i + 1}. **${a.name}** | 门票: ${a.ticket_price ? '¥' + a.ticket_price : '免费'} | 建议游玩: ${a.visit_duration || 120}分钟 | 地址: ${a.address || '市内'}\n`
     })
-    md += `\n**🍜 美食推荐**：\n`
+    md += `\n**美食推荐**：\n`
     ;(d.meals || []).forEach((m) => {
       md += `- ${getMealTypeName(m.type)}：**${m.name}** (人均约 ¥${m.estimated_cost || 50})\n`
     })
@@ -890,7 +917,7 @@ onUnmounted(() => {
 .back-btn:hover {
   background: #eff6ff;
   border-color: #93c5fd;
-  color: #2563eb;
+  color: #1e40af;
 }
 
 .trip-main-title {
@@ -905,12 +932,21 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 800;
   color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-icon {
+  font-size: 16px;
+  color: #1e40af;
 }
 
 .days-badge {
   font-size: 13px;
-  color: #64748b;
-  background: #f1f5f9;
+  color: #1e40af;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
   padding: 3px 10px;
   border-radius: 6px;
 }
@@ -936,16 +972,16 @@ onUnmounted(() => {
 }
 
 .copy-text-btn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e40af;
 }
 
 .export-dropdown-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #2563eb;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
   border: none;
   color: #ffffff;
   padding: 7px 16px;
@@ -953,11 +989,12 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
 }
 
 .export-dropdown-btn:hover {
-  background: #1d4ed8;
+  background: linear-gradient(135deg, #172554 0%, #1e3a8a 100%);
 }
 
 .arrow-down {
@@ -1009,7 +1046,8 @@ onUnmounted(() => {
 }
 
 .panel-icon {
-  font-size: 18px;
+  font-size: 16px;
+  color: #1e40af;
 }
 
 .panel-title {
@@ -1054,7 +1092,7 @@ onUnmounted(() => {
 .w-cond {
   font-size: 13px;
   font-weight: 700;
-  color: #2563eb;
+  color: #1e40af;
   margin: 2px 0;
 }
 
@@ -1086,15 +1124,51 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 10px 12px;
+  transition: all 0.15s ease;
+}
+
+.budget-card-mini:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .b-icon {
-  font-size: 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.budget-card-mini.is-attractions .b-icon {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.budget-card-mini.is-hotels .b-icon {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.budget-card-mini.is-meals .b-icon {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+.budget-card-mini.is-transport .b-icon {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
 }
 
 .b-info {
@@ -1116,7 +1190,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #eff6ff;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
   border: 1px solid #bfdbfe;
   border-radius: 10px;
   padding: 12px 16px;
@@ -1145,7 +1219,7 @@ onUnmounted(() => {
 .total-amount {
   display: flex;
   align-items: baseline;
-  color: #2563eb;
+  color: #1d4ed8;
 }
 
 .currency {
@@ -1204,8 +1278,8 @@ onUnmounted(() => {
 }
 
 .day-tab-btn.active {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #1e3a8a;
+  border-color: #1e3a8a;
   color: #ffffff;
   font-weight: 600;
 }
@@ -1251,7 +1325,8 @@ onUnmounted(() => {
 }
 
 .sec-icon {
-  font-size: 20px;
+  font-size: 18px;
+  color: #1e40af;
 }
 
 .sec-title {
@@ -1287,7 +1362,7 @@ onUnmounted(() => {
 }
 
 .day-index-badge {
-  background: #2563eb;
+  background: #1e3a8a;
   color: #ffffff;
   font-weight: 700;
   font-size: 13px;
@@ -1308,15 +1383,15 @@ onUnmounted(() => {
   flex-wrap: wrap;
   gap: 4px;
   font-size: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
   padding: 4px 10px;
   border-radius: 6px;
 }
 
 .hotel-name {
   font-weight: 600;
-  color: #2563eb;
+  color: #92400e;
   max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1324,13 +1399,14 @@ onUnmounted(() => {
 }
 
 .hotel-price {
-  color: #64748b;
+  color: #b45309;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .day-desc-box {
   background: #f8fafc;
-  border-left: 3px solid #2563eb;
+  border-left: 3px solid #1e40af;
   padding: 10px 14px;
   border-radius: 0 6px 6px 0;
   font-size: 13px;
@@ -1351,6 +1427,14 @@ onUnmounted(() => {
   font-size: 14px;
   font-weight: 700;
   color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sub-title-icon {
+  font-size: 14px;
+  color: #1e40af;
 }
 
 .sub-sec-hint {
@@ -1378,8 +1462,8 @@ onUnmounted(() => {
 }
 
 .attraction-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+  border-color: #3b82f6;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.12);
   transform: translateY(-2px);
 }
 
@@ -1408,7 +1492,7 @@ onUnmounted(() => {
   left: 8px;
   width: 22px;
   height: 22px;
-  background: #2563eb;
+  background: #1e3a8a;
   color: #ffffff;
   border-radius: 50%;
   display: flex;
@@ -1458,7 +1542,8 @@ onUnmounted(() => {
 
 .attr-duration {
   font-size: 11px;
-  color: #64748b;
+  color: #1d4ed8;
+  font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -1523,23 +1608,27 @@ onUnmounted(() => {
 }
 
 .meal-type-tag.breakfast {
-  background: #fef3c7;
-  color: #92400e;
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px solid #fef08a;
 }
 
 .meal-type-tag.lunch {
-  background: #ffedd5;
+  background: #fff7ed;
   color: #9a3412;
+  border: 1px solid #fed7aa;
 }
 
 .meal-type-tag.dinner {
-  background: #ede9fe;
-  color: #5b21b6;
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
 }
 
 .meal-type-tag.snack {
-  background: #dcfce7;
+  background: #f0fdf4;
   color: #166534;
+  border: 1px solid #bbf7d0;
 }
 
 .meal-details {
@@ -1558,7 +1647,8 @@ onUnmounted(() => {
 
 .meal-cost {
   font-size: 11px;
-  color: #2563eb;
+  color: #b45309;
+  font-weight: 600;
   margin: 1px 0;
 }
 
@@ -1608,7 +1698,7 @@ onUnmounted(() => {
   background: #fef3c7;
   border-color: #f59e0b;
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.12);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
 }
 
 .hotel-card-left {
@@ -1626,18 +1716,21 @@ onUnmounted(() => {
 
 .hotel-pill {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   background: #fef3c7;
-  color: #b45309;
+  color: #92400e;
   border: 1px solid #fcd34d;
   padding: 2px 8px;
   border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .hotel-title {
   font-size: 14px;
   font-weight: 700;
-  color: #92400e;
+  color: #78350f;
 }
 
 .hotel-addr-row {
@@ -1645,7 +1738,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #78350f;
+  color: #92400e;
 }
 
 .hotel-card-right {
@@ -1657,7 +1750,7 @@ onUnmounted(() => {
 .hotel-cost-val {
   font-size: 14px;
   font-weight: 700;
-  color: #d97706;
+  color: #b45309;
 }
 
 .cost-unit {
@@ -1670,7 +1763,7 @@ onUnmounted(() => {
   font-size: 12px;
   color: #b45309;
   background: #ffffff;
-  border: 1px solid #fde68a;
+  border: 1px solid #fcd34d;
   padding: 3px 8px;
   border-radius: 6px;
   font-weight: 600;
@@ -1708,7 +1801,7 @@ onUnmounted(() => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #2563eb;
+  background: #1e3a8a;
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
@@ -1719,7 +1812,7 @@ onUnmounted(() => {
 }
 
 .point-badge.is-hotel {
-  background: #f59e0b;
+  background: #d97706;
 }
 
 .point-name {
@@ -1742,23 +1835,28 @@ onUnmounted(() => {
   top: 0;
   bottom: 0;
   width: 2px;
-  border-left: 2px dashed #94a3b8;
+  border-left: 2px dashed #93c5fd;
 }
 
 .leg-pill-badge {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
-  padding: 4px 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 3px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
-.leg-icon {
-  font-size: 12px;
-  flex-shrink: 0;
+.leg-type-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 
 .leg-desc-text {
@@ -1794,18 +1892,20 @@ onUnmounted(() => {
 }
 
 .clean-hotel-marker {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: #f59e0b;
+  background: #d97706;
   border: 2px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
   cursor: pointer;
   transition: transform 0.15s ease;
-  font-size: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .clean-hotel-marker:hover {
