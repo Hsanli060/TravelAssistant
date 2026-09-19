@@ -1,0 +1,23 @@
+name: travelassistant
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: travelassistant-api
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      # 宿主机端口 8001 映射到容器内部端口 8000
+      # 仅绑定 127.0.0.1，不对公网直接开放，只能通过本机的 Nginx 反向代理访问，保证安全性
+      - "127.0.0.1:8001:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
