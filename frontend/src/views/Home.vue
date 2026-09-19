@@ -1,5 +1,8 @@
 <template>
   <div class="home-container">
+    <!-- 旅行艺术与空间氛围背景 (航线、热气球、经纬等高线、罗盘与签证印记) -->
+    <TravelBackground variant="home" />
+
     <div class="content-wrapper">
       <!-- 页面头部 Hero 区 -->
       <header class="hero-section">
@@ -231,7 +234,6 @@
       </div>
     </div>
 
-    <!-- 智能体分步协同生成弹窗 (现代极简工程风) -->
     <!-- 智能体分步协同生成弹窗 (现代极简工程风，支持 Esc 与显式取消) -->
     <a-modal
       v-model:open="loading"
@@ -326,6 +328,7 @@ import {
 import { tripApi } from '../services/api'
 import type { TripRequest, TripPlan } from '../types'
 import ApiSettingsModal from '../components/ApiSettingsModal.vue'
+import TravelBackground from '../components/TravelBackground.vue'
 
 const isApiSettingsOpen = ref(false)
 const hasCustomKey = ref(false)
@@ -573,13 +576,17 @@ const handleStartPlanning = async () => {
 
 <style scoped>
 .home-container {
+  position: relative;
   min-height: 100vh;
   background-color: #f8fafc;
   color: #0f172a;
   padding: 40px 20px 80px;
+  overflow-x: hidden;
 }
 
 .content-wrapper {
+  position: relative;
+  z-index: 1;
   max-width: 880px;
   margin: 0 auto;
 }
@@ -716,11 +723,13 @@ const handleStartPlanning = async () => {
 
 /* 主表单卡片 */
 .main-form-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-top: 3px solid #1e3a8a;
+  border-radius: 14px;
   padding: 28px 32px;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
 }
 
 @media (max-width: 640px) {
