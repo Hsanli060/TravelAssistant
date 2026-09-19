@@ -1,5 +1,8 @@
 <template>
   <div class="result-container" id="printable-area">
+    <!-- 旅行艺术与空间氛围背景 (克制质感，不干扰行程动线) -->
+    <TravelBackground variant="result" />
+
     <!-- 顶部极简吸顶导航栏 -->
     <header class="top-nav-bar">
       <div class="nav-left">
@@ -368,6 +371,7 @@ import {
 } from '@ant-design/icons-vue'
 import AMapLoader from '@amap/amap-jsapi-loader'
 import html2canvas from 'html2canvas'
+import TravelBackground from '../components/TravelBackground.vue'
 import type { TripPlan, Attraction, RouteLeg, Meal } from '../types'
 
 const props = defineProps<{
@@ -871,10 +875,12 @@ onUnmounted(() => {
 
 <style scoped>
 .result-container {
+  position: relative;
   min-height: 100vh;
   background-color: #f8fafc;
   color: #0f172a;
   padding-bottom: 80px;
+  overflow-x: hidden;
 }
 
 /* 顶部导航栏 */
@@ -1003,6 +1009,8 @@ onUnmounted(() => {
 
 /* 主内容区 */
 .result-body {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 24px auto 0;
   padding: 0 20px;
@@ -1662,6 +1670,7 @@ onUnmounted(() => {
 
 /* 打印样式支持 */
 @media print {
+  .travel-bg-container,
   .no-print,
   .top-nav-bar .nav-right,
   .back-btn {
